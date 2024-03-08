@@ -3,6 +3,7 @@ import bank_records
 from typing import ClassVar
 from typing import Generator
 from conversion import CurrencyConversion
+import csv
 
 
 @dataclass
@@ -26,6 +27,14 @@ class BankAccount:
 class BankAccountManager:
     all: list["BankAccount"] = field(default_factory=list, init=False)
     # ids: list = field(default_factory=list, init=False)
+
+    def dump_acounts_to_csv(self) -> None:
+        fname = "data_accounts.csv"
+        with open(fname, "w") as wfile:
+            writer = csv.writer(wfile, delimiter=",")
+            writer.writerow(["name", "balance", "currency"])
+            for account in self.all:
+                writer.writerow([account.name, account.balance, account.currency])
 
     def search_account_by_id(self, id: int) -> "BankAccount":
         for account in self.all:
@@ -112,6 +121,7 @@ def main():
     for account in manager.all:
         print(account)
 
+    manager.dump_acounts_to_csv()
     # acc1 = BankAccount("Peter Wonker", 0, "USD")
     # acc2 = BankAccount("John Walker", 100, "EUR")
 
