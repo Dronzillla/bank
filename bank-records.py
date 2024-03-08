@@ -1,5 +1,3 @@
-import logging
-
 import logging.config
 import logging.handlers
 import pathlib
@@ -17,9 +15,7 @@ def setup_logging():
     config_file = pathlib.Path(cwd, "logg_configs/config.json")
     with open(config_file) as file:
         config = json.load(file)
-
     logging.config.dictConfig(config)
-    queue_handler = logging.getHandlerByName("queue_handler")
 
 
 # def parse_file_re(fname: str):
@@ -37,7 +33,15 @@ def parse_file(fname: str):
     commands = []
     with open(fname, "r") as rfile:
         for line in rfile:
-            commands.append(shlex.split(line))
+            words = shlex.split(line)
+
+            # Get command and parameters and log them to a file
+            command = words[0]
+            parameters = words.copy()
+            parameters.pop(0)
+            logger.info(f"Command: {command}, Parameters: {parameters} ")
+
+            commands.append(words)
     return commands
 
 
