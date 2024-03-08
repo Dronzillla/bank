@@ -26,14 +26,30 @@ class BankAccountManager:
     all: list["BankAccount"] = field(default_factory=list, init=False)
     # ids: list = field(default_factory=list, init=False)
 
-    def create_account(self, name: str, balance: float, currency: str):
+    def is_balance_too_low(self): ...
+
+    def search_account_by_id(self, id: int) -> "BankAccount":
+        for account in self.all:
+            if account.id == id:
+                return account
+
+    def create_account(self, name: str, balance: float, currency: str) -> None:
         self.all.append(BankAccount(name, balance, currency))
 
-    def delete_account(self, id: int): ...
+    def delete_account(self, id: int) -> None:
+        account_to_delete = self.search_account_by_id(id)
+        index_account_to_delete = self.all.index(account_to_delete)
+        self.all.pop(index_account_to_delete)
 
-    def deposit(self, id: int, amount: float): ...
+    def deposit(self, id: int, amount: float):
+        account = self.search_account_by_id(id)
+        account.balance += amount
 
-    def withdraw(self, id: int, amount: float): ...
+    def withdraw(self, id: int, amount: float):
+        fee = amount * 0.5 / 100
+        account = self.search_account_by_id(id)
+        # Maybe we need validation to check if money left to withdraw
+        account.balance -= amount + fee
 
     def transfer(self, id1: int, id2: int, amount: float): ...
 
@@ -52,17 +68,17 @@ class BankAccountManager:
 
         elif command == "DELETE_ACC":
             id = int(record[1])
-            # self.delete_account(id)
+            self.delete_account(id)
 
         elif command == "DEPOSIT":
             id = int(record[1])
             amount = float(record[2])
-            # self.deposit(id, amount)
+            self.deposit(id, amount)
 
         elif command == "WITHDRAW":
             id = int(record[1])
             amount = float(record[2])
-            # self.withdraw(id, amount)
+            self.withdraw(id, amount)
 
         elif command == "TRANSFER":
             id1 = int(record[1])
