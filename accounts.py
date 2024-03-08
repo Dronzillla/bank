@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 import bank_records
 from typing import ClassVar
+from typing import Generator
 
 
 @dataclass
@@ -22,34 +23,71 @@ class BankAccount:
 
 @dataclass
 class BankAccountManager:
-    all: list["BankAccount"] = field(default_factory=list)
-    ids: list = field(default_factory=list)
+    all: list["BankAccount"] = field(default_factory=list, init=False)
+    # ids: list = field(default_factory=list, init=False)
 
-    def create_account(self, record: list): ...
+    def create_account(self, name: str, balance: float, currency: str):
+        self.all.append(BankAccount(name, balance, currency))
 
     def delete_account(self, id: int): ...
 
-    def deposit(self, id: int, number: float): ...
+    def deposit(self, id: int, amount: float): ...
 
-    def withdraw(self, id: int, number: float): ...
+    def withdraw(self, id: int, amount: float): ...
 
-    def transfer(self, id1: int, id2: int, number: float): ...
+    def transfer(self, id1: int, id2: int, amount: float): ...
 
-    def parse_records(self, records: list[list]): ...
+    def parse_records(self, records: list[list]) -> None:
+        for record in records:
+            self.parse_record(record)
 
-    def parse_record(self, record: list): ...
+    def parse_record(self, record: list) -> None:
+        command = record[0]
+
+        if command == "CREATE_ACC":
+            name = record[1]
+            balance = float(record[2])
+            currency = record[3]
+            self.create_account(name, balance, currency)
+
+        elif command == "DELETE_ACC":
+            id = int(record[1])
+            # self.delete_account(id)
+
+        elif command == "DEPOSIT":
+            id = int(record[1])
+            amount = float(record[2])
+            # self.deposit(id, amount)
+
+        elif command == "WITHDRAW":
+            id = int(record[1])
+            amount = float(record[2])
+            # self.withdraw(id, amount)
+
+        elif command == "TRANSFER":
+            id1 = int(record[1])
+            id2 = int(record[2])
+            amount = float(record[3])
+            # self.transfer(id1, id2, amount)
+
+        else:
+            ...
 
 
 def main():
-    # records = bank_records.main()
-    # for record in records:
-    #     print(record)
+    records = bank_records.main()
 
-    acc1 = BankAccount("Peter Wonker", 0, "USD")
-    acc2 = BankAccount("John Walker", 100, "EUR")
+    manager = BankAccountManager()
+    manager.parse_records(records)
 
-    print(acc1.id)
-    print(acc2.id)
+    for account in manager.all:
+        print(account)
+
+    # acc1 = BankAccount("Peter Wonker", 0, "USD")
+    # acc2 = BankAccount("John Walker", 100, "EUR")
+
+    # print(acc1.id)
+    # print(acc2.id)
 
 
 if __name__ == "__main__":
