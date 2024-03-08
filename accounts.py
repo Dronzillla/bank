@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 import bank_records
 from typing import ClassVar
 from typing import Generator
+from conversion import CurrencyConversion
 
 
 @dataclass
@@ -26,8 +27,6 @@ class BankAccountManager:
     all: list["BankAccount"] = field(default_factory=list, init=False)
     # ids: list = field(default_factory=list, init=False)
 
-    def is_balance_too_low(self): ...
-
     def search_account_by_id(self, id: int) -> "BankAccount":
         for account in self.all:
             if account.id == id:
@@ -51,7 +50,21 @@ class BankAccountManager:
         # Maybe we need validation to check if money left to withdraw
         account.balance -= amount + fee
 
-    def transfer(self, id1: int, id2: int, amount: float): ...
+    def transfer(self, id1: int, id2: int, amount: float):
+        account_minus = self.search_account_by_id(id1)
+        account_plus = self.search_account_by_id(id2)
+
+        # Adjust balance of first account
+        fee = amount * 0.7 / 100
+        account_minus.balance -= amount + fee
+        # Get currencies of both accounts
+        account_minus_currency = account_minus.currency
+        account_plus_currency = account_plus.currency
+        # Adjust balance of second account
+        ratio = CurrencyConversion.convert_currency(
+            account_minus_currency, account_plus_currency
+        )
+        account_plus.balance += amount * ratio
 
     def parse_records(self, records: list[list]) -> None:
         for record in records:
@@ -84,7 +97,7 @@ class BankAccountManager:
             id1 = int(record[1])
             id2 = int(record[2])
             amount = float(record[3])
-            # self.transfer(id1, id2, amount)
+            self.transfer(id1, id2, amount)
 
         else:
             ...
