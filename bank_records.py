@@ -45,15 +45,14 @@ def parse_file(fname: str):
     return commands
 
 
-def main():
+def main() -> list:
     # Setup logging
     setup_logging()
     # logger.info("info message")
 
     fname = "bank-records.txt"
     commands = parse_file(fname)
-    for item in commands:
-        print(item)
+    return commands
 
 
 if __name__ == "__main__":
