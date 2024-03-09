@@ -1,9 +1,15 @@
 from dataclasses import dataclass, field
-import bank_records
 from typing import ClassVar
-from typing import Generator
 from conversion import CurrencyConversion
 import csv
+
+# For logger
+from bank_records import setup_logging
+import logging.config
+import logging.handlers
+
+# Use logger based on module name
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -34,6 +40,7 @@ class BankAccountManager:
             writer = csv.writer(wfile, delimiter=",")
             writer.writerow(["name", "balance", "currency"])
             for account in self.all:
+                logger.info(f"Writing to file: {account}")
                 writer.writerow([account.name, account.balance, account.currency])
 
     def search_account_by_id(self, id: int) -> "BankAccount":
@@ -109,24 +116,11 @@ class BankAccountManager:
             self.transfer(id1, id2, amount)
 
         else:
-            ...
+            logger.warning(f"Unable to parse record. Invalid command entered.")
 
 
 def main():
-    records = bank_records.main()
-
-    manager = BankAccountManager()
-    manager.parse_records(records)
-
-    for account in manager.all:
-        print(account)
-
-    manager.dump_acounts_to_csv()
-    # acc1 = BankAccount("Peter Wonker", 0, "USD")
-    # acc2 = BankAccount("John Walker", 100, "EUR")
-
-    # print(acc1.id)
-    # print(acc2.id)
+    setup_logging()
 
 
 if __name__ == "__main__":

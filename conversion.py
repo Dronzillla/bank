@@ -1,3 +1,11 @@
+from bank_records import setup_logging
+import logging.config
+import logging.handlers
+
+# Use logger based on module name
+logger = logging.getLogger(__name__)
+
+
 class CurrencyConversion:
     RATES = {
         "EUR": {"USD": 1.09, "GBP": 0.85, "EUR": 1},
@@ -9,14 +17,17 @@ class CurrencyConversion:
     def convert_currency(currency1: str, currency2: str) -> float:
         try:
             rate = CurrencyConversion.RATES[currency1][currency2]
+            # logger.info(f"{currency1} converted to {currency2}. Exchange rate: {rate}.")
             return rate
         except KeyError:
-            # Implement logging maybe?
-            return 1
+            logger.warning(
+                f"No conversion rate for currencies {currency1} and {currency2}."
+            )
 
 
 def main():
-    ...
+    setup_logging()
+
     # For testing
     # rate = CurrencyConversion.convert_currency("EUR", "USD")
     # print(rate)

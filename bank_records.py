@@ -2,11 +2,12 @@ import logging.config
 import logging.handlers
 import pathlib
 import json
-import re
 import shlex
-import csv
 
-# Use loggers based on module names
+# import re
+# import csv
+
+# Use logger based on module name
 logger = logging.getLogger(__name__)
 
 
@@ -18,7 +19,8 @@ def setup_logging():
     logging.config.dictConfig(config)
 
 
-# def parse_file_re(fname: str):
+# Solution for parse_file using re
+# def parse_file(fname: str):
 #     pattern = re.compile(r'("[^"]+"|\S+)')
 #     commands = []
 #     with open(fname, "r") as rfile:
@@ -39,7 +41,7 @@ def parse_file(fname: str):
             command = words[0]
             parameters = words.copy()
             parameters.pop(0)
-            logger.info(f"Command: {command}, Parameters: {parameters} ")
+            logger.info(f"Command: {command}, Parameters: {parameters}.")
 
             commands.append(words)
     return commands
@@ -48,9 +50,9 @@ def parse_file(fname: str):
 def main() -> list:
     # Setup logging
     setup_logging()
-    # logger.info("info message")
-
     fname = "bank-records.txt"
+
+    # Return a list of parsed records
     commands = parse_file(fname)
     return commands
 
