@@ -86,8 +86,8 @@ In a nutshell, your task is to:
 - Implement a method `dump_accounts_to_csv` as part of `BankAccountManager` which writes the state of each _still existing_ account to a csv file. For example, after processing the file above, our output CSV file should look like this:
 ```csv
 account_id,holder,balance,currency
-1,"John Smith",141.43,EUR
-3,"John Smith",900.00,USD
+1,"John Smith",140.25,EUR
+3,"John Smith",899.3,USD
 4,"Peter W Higgs",201.00,GBP
 ```
 - Add another debug logging when writing to file, for example

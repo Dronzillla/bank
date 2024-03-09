@@ -34,7 +34,7 @@ class BankAccountManager:
     all: list["BankAccount"] = field(default_factory=list, init=False)
     # ids: list = field(default_factory=list, init=False)
 
-    def dump_acounts_to_csv(self) -> None:
+    def dump_accounts_to_csv(self) -> None:
         fname = "data_accounts.csv"
         with open(fname, "w") as wfile:
             writer = csv.writer(wfile, delimiter=",")
