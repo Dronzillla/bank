@@ -31,7 +31,7 @@ def setup_logging():
 #     return commands
 
 
-def parse_file(fname: str):
+def parse_file(fname: str) -> list[list]:
     commands = []
     with open(fname, "r") as rfile:
         for line in rfile:

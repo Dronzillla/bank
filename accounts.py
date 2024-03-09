@@ -119,7 +119,7 @@ class BankAccountManager:
             logger.warning(f"Unable to parse record. Invalid command entered.")
 
 
-def main():
+def main() -> None:
     setup_logging()
 
 

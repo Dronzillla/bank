@@ -2,7 +2,7 @@ import bank_records
 from accounts import BankAccountManager
 
 
-def main():
+def main() -> None:
     # Get a list of records
     records = bank_records.main()
 

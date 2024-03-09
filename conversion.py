@@ -23,9 +23,10 @@ class CurrencyConversion:
             logger.warning(
                 f"No conversion rate for currencies {currency1} and {currency2}."
             )
+            return 1
 
 
-def main():
+def main() -> None:
     setup_logging()
 
     # For testing
