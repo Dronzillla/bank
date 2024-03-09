@@ -1,8 +1,12 @@
+import logg
 import bank_records
 from accounts import BankAccountManager
 
 
 def main() -> None:
+    # Set up loging folder
+    logg.main()
+
     # Get a list of records
     records = bank_records.main()
 

@@ -4,7 +4,7 @@ import pathlib
 import json
 
 
-def setup_logging():
+def setup_logging() -> None:
     cwd = pathlib.Path.cwd()
     config_file = pathlib.Path(cwd, "logg_configs/config.json")
     with open(config_file) as file:
@@ -12,7 +12,13 @@ def setup_logging():
     logging.config.dictConfig(config)
 
 
-def main(): ...
+def main() -> None:
+    cwd = pathlib.Path.cwd()
+    logg_dir = pathlib.Path(cwd, "logs")
+
+    # Create logs in cwd if directory does not exist
+    if not logg_dir.is_dir():
+        pathlib.Path.mkdir(logg_dir)
 
 
 if __name__ == "__main__":
