@@ -1,34 +1,11 @@
 import logging.config
 import logging.handlers
-import pathlib
-import json
+from logg import setup_logging
 import shlex
 
-# import re
-# import csv
 
 # Use logger based on module name
 logger = logging.getLogger(__name__)
-
-
-def setup_logging():
-    cwd = pathlib.Path.cwd()
-    config_file = pathlib.Path(cwd, "logg_configs/config.json")
-    with open(config_file) as file:
-        config = json.load(file)
-    logging.config.dictConfig(config)
-
-
-# Solution for parse_file using re
-# def parse_file(fname: str):
-#     pattern = re.compile(r'("[^"]+"|\S+)')
-#     commands = []
-#     with open(fname, "r") as rfile:
-
-#         for line in rfile:
-#             result = pattern.findall(line)
-#             print(result)
-#     return commands
 
 
 def parse_file(fname: str) -> list[list]:

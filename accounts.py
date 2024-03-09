@@ -4,7 +4,7 @@ from conversion import CurrencyConversion
 import csv
 
 # For logger
-from bank_records import setup_logging
+from logg import setup_logging
 import logging.config
 import logging.handlers
 
