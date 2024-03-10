@@ -15,7 +15,7 @@ def main() -> None:
     manager.parse_records(records)
     manager.dump_accounts_to_csv()
 
-    # For testing (print the result) to console
+    # For testing print all acounts to console
     for account in manager.all:
         print(account)
 

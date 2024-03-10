@@ -24,7 +24,7 @@ def parse_file(fname: str) -> list[list]:
     return commands
 
 
-def main() -> list:
+def main() -> list[list]:
     # Setup logging
     setup_logging()
     fname = "bank-records.txt"

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import ClassVar, Union
+from typing import Union
 from conversion import CurrencyConversion
 import csv
 from abc import ABC, abstractmethod
@@ -15,15 +15,18 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class BankAccount(ABC):
-    name: str
-    balance: float
-    currency: str
+    name: str = field(repr=True)
+    balance: float = field(repr=True)
+    currency: str = field(repr=True)
     id: int = field(repr=True)
     account_type: str = field(repr=True)
 
-    def deposit(self, amount: float):
-        self.balance += amount
+    def round_balance(self) -> None:
         self.balance = round(self.balance, 2)
+
+    def deposit(self, amount: float) -> None:
+        self.balance += amount
+        self.round_balance()
 
     @abstractmethod
     def withdraw(self) -> None:
@@ -36,6 +39,7 @@ class BankAccount(ABC):
 
 @dataclass
 class StandardBankAccount(BankAccount):
+    # Dataclasses won't automatically consider attributes defined in the base class, so field function is created
     data_field: int = field(default=0, init=False, repr=False)
 
     # After creating the account deduct a fee for account creation 0.1% of initial funds
@@ -43,12 +47,12 @@ class StandardBankAccount(BankAccount):
         if self.balance != 0:
             fee = 0.1 / 100 * self.balance
             self.balance -= fee
-            self.balance = round(self.balance, 2)
+            self.round_balance()
 
     def withdraw(self, amount: float) -> None:
         fee = amount * 0.5 / 100
         self.balance -= amount + fee
-        self.balance = round(self.balance, 2)
+        self.round_balance()
 
     def transfer(self, amount: float, party: str) -> None:
         if party == "sender":
@@ -56,11 +60,12 @@ class StandardBankAccount(BankAccount):
             self.balance -= amount + fee
         elif party == "receiver":
             self.balance += amount
-        self.balance = round(self.balance, 2)
+        self.round_balance()
 
 
 @dataclass
 class PremiumBankAccount(BankAccount):
+    # Dataclasses won't automatically consider attributes defined in the base class, so field function is created
     data_field: int = field(default=0, init=False, repr=False)
 
     # After creating the account deduct a fee for account creation 0.3% of initial funds
@@ -68,12 +73,12 @@ class PremiumBankAccount(BankAccount):
         if self.balance != 0:
             fee = 0.3 / 100 * self.balance
             self.balance -= fee
-            self.balance = round(self.balance, 2)
+            self.round_balance()
 
     def withdraw(self, amount: float) -> None:
         fee = amount * 0.3 / 100
         self.balance -= amount + fee
-        self.balance = round(self.balance, 2)
+        self.round_balance()
 
     def transfer(self, amount: float, party: str) -> None:
         if party == "sender":
@@ -81,7 +86,7 @@ class PremiumBankAccount(BankAccount):
             self.balance -= amount + fee
         elif party == "receiver":
             self.balance += amount
-        self.balance = round(self.balance, 2)
+        self.round_balance()
 
 
 @dataclass
@@ -139,15 +144,15 @@ class BankAccountManager:
         index_account_to_delete = self.all.index(account_to_delete)
         self.all.pop(index_account_to_delete)
 
-    def deposit(self, id: int, amount: float):
+    def deposit(self, id: int, amount: float) -> None:
         account = self.search_account_by_id(id)
         account.deposit(amount)
 
-    def withdraw(self, id: int, amount: float):
+    def withdraw(self, id: int, amount: float) -> None:
         account = self.search_account_by_id(id)
         account.withdraw(amount)
 
-    def transfer(self, id1: int, id2: int, amount: float):
+    def transfer(self, id1: int, id2: int, amount: float) -> None:
         # Get accounts for sender and receiver of funds
         account_sender = self.search_account_by_id(id1)
         account_receiver = self.search_account_by_id(id2)
