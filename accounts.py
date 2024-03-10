@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import ClassVar
 from conversion import CurrencyConversion
 import csv
+from abc import ABC, abstractmethod
 
 # For logger
 from logg import setup_logging
@@ -13,26 +14,39 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class BankAccount:
-    name: str = field()
-    balance: float = field()
-    currency: str = field()
+class BankAccount(ABC):
+    name: str
+    balance: float
+    currency: str
+    id: int = field(repr=True)
+    account_type: str = field(repr=True)
 
-    # Make a class attribute to count instances
-    ids: ClassVar = field(init=False, default=[])
+    @abstractmethod
+    def make_class_abstract(self) -> None:
+        pass
 
-    def __post_init__(self):
-        if len(self.ids) == 0:
-            self.id = 1
-        else:
-            self.id = self.ids[-1] + 1
-        self.ids.append(self.id)
+
+@dataclass
+class StandardBankAccount(BankAccount):
+    data_field: int = field(default=0, init=False, repr=False)
+
+    def make_class_abstract(self) -> None:
+        pass
+
+
+@dataclass
+class PremiumBankAccount(BankAccount):
+    data_field: int = field(default=0, init=False, repr=False)
+
+    def make_class_abstract(self) -> None:
+        pass
 
 
 @dataclass
 class BankAccountManager:
     all: list["BankAccount"] = field(default_factory=list, init=False)
     # ids: list = field(default_factory=list, init=False)
+    last_id: int = field(default=1, init=False)
 
     def dump_accounts_to_csv(self) -> None:
         fname = "data_accounts.csv"
@@ -48,8 +62,29 @@ class BankAccountManager:
             if account.id == id:
                 return account
 
-    def create_account(self, name: str, balance: float, currency: str) -> None:
-        self.all.append(BankAccount(name, balance, currency))
+    def create_account(
+        self, name: str, balance: float, currency: str, account_type: str
+    ) -> None:
+        if account_type == "STD":
+            account = StandardBankAccount(
+                name=name,
+                balance=balance,
+                currency=currency,
+                id=self.last_id,
+                account_type=account_type,
+            )
+        elif account_type == "PRM":
+            account = PremiumBankAccount(
+                name=name,
+                balance=balance,
+                currency=currency,
+                id=self.last_id,
+                account_type=account_type,
+            )
+
+        # Append to all list and update last id
+        self.all.append(account)
+        self.last_id += 1
 
     def delete_account(self, id: int) -> None:
         account_to_delete = self.search_account_by_id(id)
@@ -89,11 +124,17 @@ class BankAccountManager:
     def parse_record(self, record: list) -> None:
         command = record[0]
 
-        if command == "CREATE_ACC":
+        if command == "CREATE_ACC_STD":
             name = record[1]
             balance = float(record[2])
             currency = record[3]
-            self.create_account(name, balance, currency)
+            self.create_account(name, balance, currency, "STD")
+
+        elif command == "CREATE_ACC_PRM":
+            name = record[1]
+            balance = float(record[2])
+            currency = record[3]
+            self.create_account(name, balance, currency, "PRM")
 
         elif command == "DELETE_ACC":
             id = int(record[1])
