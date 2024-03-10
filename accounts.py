@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import ClassVar
+from typing import ClassVar, Union
 from conversion import CurrencyConversion
 import csv
 from abc import ABC, abstractmethod
@@ -21,8 +21,15 @@ class BankAccount(ABC):
     id: int = field(repr=True)
     account_type: str = field(repr=True)
 
+    def deposit(self, amount: float):
+        self.balance += amount
+
     @abstractmethod
-    def make_class_abstract(self) -> None:
+    def withdraw(self) -> None:
+        pass
+
+    @abstractmethod
+    def transfer(self) -> None:
         pass
 
 
@@ -30,14 +37,22 @@ class BankAccount(ABC):
 class StandardBankAccount(BankAccount):
     data_field: int = field(default=0, init=False, repr=False)
 
-    def make_class_abstract(self) -> None:
-        pass
-
     # After creating the account deduct a fee for account creation 0.1% of initial funds
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.balance != 0:
-            fee = 1 / 1000 * self.balance
+            fee = 0.1 / 100 * self.balance
             self.balance -= fee
+
+    def withdraw(self, amount: float) -> None:
+        fee = amount * 0.5 / 100
+        self.balance -= amount + fee
+
+    def transfer(self, amount: float, party: str) -> None:
+        if party == "sender":
+            fee = amount * 0.7 / 100
+            self.balance -= amount + fee
+        elif party == "receiver":
+            self.balance += amount
 
 
 @dataclass
@@ -45,18 +60,28 @@ class PremiumBankAccount(BankAccount):
     data_field: int = field(default=0, init=False, repr=False)
 
     # After creating the account deduct a fee for account creation 0.3% of initial funds
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.balance != 0:
-            fee = 3 / 1000 * self.balance
+            fee = 0.3 / 100 * self.balance
             self.balance -= fee
 
-    def make_class_abstract(self) -> None:
-        pass
+    def withdraw(self, amount: float) -> None:
+        fee = amount * 0.3 / 100
+        self.balance -= amount + fee
+
+    def transfer(self, amount: float, party: str) -> None:
+        if party == "sender":
+            fee = amount * 0.45 / 100
+            self.balance -= amount + fee
+        elif party == "receiver":
+            self.balance += amount
 
 
 @dataclass
 class BankAccountManager:
-    all: list["BankAccount"] = field(default_factory=list, init=False)
+    all: list[Union[StandardBankAccount, PremiumBankAccount]] = field(
+        default_factory=list, init=False
+    )
     # ids: list = field(default_factory=list, init=False)
     last_id: int = field(default=1, init=False)
 
@@ -69,7 +94,9 @@ class BankAccountManager:
                 logger.info(f"Writing to file: {account}")
                 writer.writerow([account.name, account.balance, account.currency])
 
-    def search_account_by_id(self, id: int) -> "BankAccount":
+    def search_account_by_id(
+        self, id: int
+    ) -> Union[StandardBankAccount, PremiumBankAccount]:
         for account in self.all:
             if account.id == id:
                 return account
@@ -105,29 +132,27 @@ class BankAccountManager:
 
     def deposit(self, id: int, amount: float):
         account = self.search_account_by_id(id)
-        account.balance += amount
+        account.deposit(amount)
 
     def withdraw(self, id: int, amount: float):
-        fee = amount * 0.5 / 100
         account = self.search_account_by_id(id)
-        # Maybe we need validation to check if money left to withdraw
-        account.balance -= amount + fee
+        account.withdraw(amount)
 
     def transfer(self, id1: int, id2: int, amount: float):
-        account_minus = self.search_account_by_id(id1)
-        account_plus = self.search_account_by_id(id2)
+        # Get accounts for sender and receiver of funds
+        account_sender = self.search_account_by_id(id1)
+        account_receiver = self.search_account_by_id(id2)
 
-        # Adjust balance of first account
-        fee = amount * 0.7 / 100
-        account_minus.balance -= amount + fee
         # Get currencies of both accounts
-        account_minus_currency = account_minus.currency
-        account_plus_currency = account_plus.currency
-        # Adjust balance of second account
+        account_sender_currency = account_sender.currency
+        account_receiver_currency = account_receiver.currency
+        # Calculate currency ratio for receiver account currency
         ratio = CurrencyConversion.convert_currency(
-            account_minus_currency, account_plus_currency
+            account_sender_currency, account_receiver_currency
         )
-        account_plus.balance += amount * ratio
+        # Adjust balance for both accounts: receiver (+) or sender (-)
+        account_sender.transfer(amount, "sender")
+        account_receiver.transfer(amount * ratio, "receiver")
 
     def parse_records(self, records: list[list]) -> None:
         for record in records:
