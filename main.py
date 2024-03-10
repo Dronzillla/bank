@@ -13,7 +13,7 @@ def main() -> None:
     # Parse each record and dump information about accounts in csv
     manager = BankAccountManager()
     manager.parse_records(records)
-    # manager.dump_accounts_to_csv()
+    manager.dump_accounts_to_csv()
 
     # For testing (print the result) to console
     for account in manager.all:

@@ -82,17 +82,19 @@ class BankAccountManager:
     all: list[Union[StandardBankAccount, PremiumBankAccount]] = field(
         default_factory=list, init=False
     )
-    # ids: list = field(default_factory=list, init=False)
     last_id: int = field(default=1, init=False)
 
     def dump_accounts_to_csv(self) -> None:
         fname = "data_accounts.csv"
         with open(fname, "w") as wfile:
             writer = csv.writer(wfile, delimiter=",")
-            writer.writerow(["name", "balance", "currency"])
+            writer.writerow(["account_id", "holder", "balance", "currency"])
             for account in self.all:
                 logger.info(f"Writing to file: {account}")
-                writer.writerow([account.name, account.balance, account.currency])
+                account_str = "'" + account.name + "'"
+                writer.writerow(
+                    [account.id, account_str, account.balance, account.currency]
+                )
 
     def search_account_by_id(
         self, id: int
