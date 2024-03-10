@@ -129,7 +129,7 @@ TRANSFER 3 4 100
 the final CSV output file should look like:
 ```csv
 account_id,holder,balance,currency
-1,"John Smith",133.50,EUR
-3,"John Smith",865.50,USD
-4,"Peter W Higgs",199.77,GBP
+1,"John Smith",140.25,EUR
+3,"John Smith",896.55,USD
+4,"Peter W Higgs",200.88,GBP
 ```

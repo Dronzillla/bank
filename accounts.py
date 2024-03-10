@@ -23,6 +23,7 @@ class BankAccount(ABC):
 
     def deposit(self, amount: float):
         self.balance += amount
+        self.balance = round(self.balance, 2)
 
     @abstractmethod
     def withdraw(self) -> None:
@@ -42,10 +43,12 @@ class StandardBankAccount(BankAccount):
         if self.balance != 0:
             fee = 0.1 / 100 * self.balance
             self.balance -= fee
+            self.balance = round(self.balance, 2)
 
     def withdraw(self, amount: float) -> None:
         fee = amount * 0.5 / 100
         self.balance -= amount + fee
+        self.balance = round(self.balance, 2)
 
     def transfer(self, amount: float, party: str) -> None:
         if party == "sender":
@@ -53,6 +56,7 @@ class StandardBankAccount(BankAccount):
             self.balance -= amount + fee
         elif party == "receiver":
             self.balance += amount
+        self.balance = round(self.balance, 2)
 
 
 @dataclass
@@ -64,10 +68,12 @@ class PremiumBankAccount(BankAccount):
         if self.balance != 0:
             fee = 0.3 / 100 * self.balance
             self.balance -= fee
+            self.balance = round(self.balance, 2)
 
     def withdraw(self, amount: float) -> None:
         fee = amount * 0.3 / 100
         self.balance -= amount + fee
+        self.balance = round(self.balance, 2)
 
     def transfer(self, amount: float, party: str) -> None:
         if party == "sender":
@@ -75,6 +81,7 @@ class PremiumBankAccount(BankAccount):
             self.balance -= amount + fee
         elif party == "receiver":
             self.balance += amount
+        self.balance = round(self.balance, 2)
 
 
 @dataclass
