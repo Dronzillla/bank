@@ -33,10 +33,22 @@ class StandardBankAccount(BankAccount):
     def make_class_abstract(self) -> None:
         pass
 
+    # After creating the account deduct a fee for account creation 0.1% of initial funds
+    def __post_init__(self):
+        if self.balance != 0:
+            fee = 1 / 1000 * self.balance
+            self.balance -= fee
+
 
 @dataclass
 class PremiumBankAccount(BankAccount):
     data_field: int = field(default=0, init=False, repr=False)
+
+    # After creating the account deduct a fee for account creation 0.3% of initial funds
+    def __post_init__(self):
+        if self.balance != 0:
+            fee = 3 / 1000 * self.balance
+            self.balance -= fee
 
     def make_class_abstract(self) -> None:
         pass
